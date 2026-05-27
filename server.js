@@ -40,4 +40,14 @@ app.post('/api/requests', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+// Database se saari requests ko nikal kar frontend par bhejna
+app.get('/api/requests', async (req, res) => {
+    try {
+        const allRequests = await Request.find().sort({ createdAt: -1 }); // Nayi requests sabse upar dikhenge
+        res.status(200).json({ success: true, data: allRequests });
+    } catch (error) {
+        console.error("Error fetching requests:", error);
+        res.status(500).json({ success: false, message: "Server error while fetching data" });
+    }
+});
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
