@@ -129,11 +129,32 @@
                 });
                 
                 const data = await response.json();
-                if (data.success) {
+               if (data.success) {
+                    // 1. Form chhupao aur Unique ID wala card dikhao
                     form.style.display = 'none';
                     displayId.innerText = data.requestId;
                     successBox.style.display = 'block';
-                } else {
+
+                    // 2. DIRECT WHATSAPP REDIRECT LOGIC (Bina Twilio ke)
+                    // Message text ko ache se sajao
+                    const whatsappMessage = `Hello ${clientName},\n\nThank you for contacting DevAgency! 🙏\n\nYour web request has been successfully registered.\n📌 *Project:* ${title}\n🆔 *Unique Tracking ID:* ${data.requestId}\n\nYou can use this ID anytime on our website to track your project's live status.\n\nBest Regards,\nDevAgency Team`;
+                    
+                    // Number format sahi karna
+                    let cleanNumber = whatsappNumber.replace(/\D/g, ''); // Saare symbols aur spaces hatane ke liye
+                    if(!cleanNumber.startsWith('91') && cleanNumber.length === 10) {
+                        cleanNumber = `91${cleanNumber}`; // Agar sirf 10 digit ka number hai toh default India code jodo
+                    }
+
+                    // WhatsApp ka official link open karna automatic message text ke sath
+                    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encodeURIComponent(whatsappMessage)}`;
+                    
+                    // 2 second ka pause dekar redirect karo taaki client ko pehle screen par ID dikh jaye
+                    setTimeout(() => {
+                        window.open(whatsappUrl, '_blank');
+                    }, 2000);
+
+                }
+                 else {
                     alert('Error: Server failed.');
                     resetButton();
                 }
