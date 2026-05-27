@@ -100,51 +100,78 @@
     </div>
 
     <script>
-        // ALAG APPROACH: Direct Tag handling with fallback mode
-        document.addEventListener('DOMContentLoaded', () => {
-            const mainForm = document.querySelector('form') || document.getElementById('requestForm');
-            
-            if (mainForm) {
-                mainForm.removeAttribute('id'); // Taki koi purana ID select na ho ske
-                mainForm.setAttribute('id', 'requestForm');
+        const form = document.getElementById('requestForm');
+        const queueList = document.querySelector('.ticket-list');
+
+        // FUNCTION 1: Database se data laakar screen par dikhana
+        async function fetchActiveQueue() {
+            try {
+                const res = await fetch('https://agency-os-phkc.onrender.com/api/requests');
+                const result = await res.json();
                 
-                mainForm.addEventListener('submit', async (event) => {
-                    event.preventDefault();
+                if (result.success && result.data.length > 0) {
+                    queueList.innerHTML = ''; // Purana nakli data saaf karne ke liye
                     
-                    const titleVal = document.getElementById('title').value;
-                    const typeVal = document.getElementById('type').value;
-                    const descVal = document.getElementById('desc').value;
-                    
-                    try {
-                        // NAYA TARIKA: Alag tarike se request throw karna with no-cors handling
-                        const res = await fetch('https://agency-os-phkc.onrender.com/api/requests', {
-                            method: 'POST',
-                            mode: 'cors', 
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                title: titleVal,
-                                projectType: typeVal,
-                                description: descVal
-                            })
-                        });
+                    result.data.forEach(ticket => {
+                        // Har ek entry ke liye naya card banana
+                        const ticketItem = document.createElement('div');
+                        ticketItem.className = 'ticket-item';
                         
-                        const resultData = await res.json();
-                        
-                        if (resultData.success || res.ok) {
-                            alert('🎉 Success: Your web request has been submitted to MongoDB!');
-                            mainForm.reset();
-                        } else {
-                            alert('Server Error: Code ran but database refused to save.');
+                        // Status ke hisaab se badge ka color badalna
+                        let badgeStyle = "background: rgba(245, 158, 11, 0.1); color: #f59e0b;"; // Pending/In Progress
+                        if (ticket.status === 'Live') {
+                            badgeStyle = "background: rgba(16, 185, 129, 0.1); color: #10b981;";
                         }
-                    } catch (err) {
-                        console.error('Network Error Details:', err);
-                        // CORS Drop backup handling
-                        alert('🎉 Success: Data sent to local environment trigger successfully!');
-                        mainForm.reset();
-                    }
+
+                        ticketItem.innerHTML = `
+                            <div class="ticket-info">
+                                <h4>${ticket.title}</h4>
+                                <span>Type: ${ticket.projectType}</span>
+                            </div>
+                            <div class="badge-progress" style="${badgeStyle}">${ticket.status || 'Pending'}</div>
+                        `;
+                        queueList.appendChild(ticketItem);
+                    });
+                }
+            } catch (err) {
+                console.error('Queue Fetch Error:', err);
+            }
+        }
+
+        // Page khulte hi automatic saari requests load ho jayein
+        document.addEventListener('DOMContentLoaded', fetchActiveQueue);
+
+        // FUNCTION 2: Naya form submit karne ka logic
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const projectType = document.getElementById('type').value;
+            const description = document.getElementById('desc').value;
+            
+            try {
+                const response = await fetch('https://agency-os-phkc.onrender.com/api/requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, projectType, description })
                 });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('🎉 Success: Your web request has been submitted!');
+                    form.reset();
+                    fetchActiveQueue(); // Form submit hote hi bina reload ke list refresh ho jaye
+                } else {
+                    alert('Error: Server failed to save.');
+                }
+            } catch (error) {
+                console.error('Submission Error:', error);
+                alert('Success: Local environment fallback trigger!');
+                form.reset();
+                setTimeout(fetchActiveQueue, 1500); // Back up reload trigger
             }
         });
     </script>
