@@ -339,6 +339,47 @@
             </div>
         </div>
     </section>
-
+<script>
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Page ko reload hone se rokne ke liye
+            
+            // Form ki values ko variables me store karna
+            const title = document.getElementById('title').value;
+            const projectType = document.getElementById('type').value;
+            const description = document.getElementById('desc').value;
+            
+            // Form validation check
+            if(!title || !description) {
+                alert('Please fill out all fields.');
+                return;
+            }
+            
+            try {
+                // Aapke Node.js local server par request bhejna
+                const response = await fetch('http://localhost:5000/api/requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, projectType, description })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('🎉 Success: Your web request has been submitted to MongoDB!');
+                    form.reset(); // Form clear karne ke liye
+                } else {
+                    alert('Error: Server accepted request but failed to save.');
+                }
+            } catch (error) {
+                console.error('Submission Error:', error);
+                alert('Could not connect to the server. Make sure node server.js is running!');
+            }
+        });
+    </script>
+</body>
 </body>
 </html>
