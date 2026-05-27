@@ -236,6 +236,280 @@
             </div>
         </div>
     </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard | DevAgency</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        body {
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background-color: #0f172a;
+            border-right: 1px solid #1e293b;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar .brand {
+            font-size: 22px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 40px;
+            padding-left: 10px;
+        }
+
+        .sidebar .brand span { color: #fff; }
+
+        .sidebar a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .sidebar a.active, .sidebar a:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .header-dash {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 20px;
+        }
+
+        .user-info h2 { font-size: 28px; font-weight: 700; }
+        .user-info p { color: #94a3b8; font-size: 14px; }
+
+        .status-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        /* Two Column Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        /* Request Form Card */
+        .card {
+            background-color: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .card h3 { margin-bottom: 20px; font-size: 20px; color: #fff; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            background-color: #0b0f19;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #3b82f6;
+        }
+
+        .btn-submit {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover { background-color: #2563eb; }
+
+        /* Recent Tickets / Queue */
+        .ticket-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ticket-item {
+            background-color: #0b0f19;
+            border: 1px solid #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ticket-info h4 { font-size: 15px; margin-bottom: 5px; color: #fff; }
+        .ticket-info span { color: #64748b; font-size: 12px; }
+
+        .badge-progress {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand">Dev<span>Agency</span></div>
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">Active Projects</a>
+        <a href="#">Billing & Plans</a>
+        <a href="#">Account Settings</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header-dash">
+            <div class="user-info">
+                <h2>Welcome Back, Client!</h2>
+                <p>Manage your website development requests below.</p>
+            </div>
+            <div class="status-badge">Half-Yearly Plan Active</div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>Submit a New Web Request</h3>
+                <form id="requestForm">
+                    <div class="form-group">
+                        <label for="title">Request Title</label>
+                        <input type="text" id="title" placeholder="e.g., Build a new Landing Page for Product X" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Project Type</label>
+                        <select id="type">
+                            <option>Custom HTML/CSS Website</option>
+                            <option>WordPress Website</option>
+                            <option>E-commerce Feature/Update</option>
+                            <option>UI Design / Revision</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="desc">Detailed Description & Guidelines</label>
+                        <textarea id="desc" rows="6" placeholder="Provide color preferences, content structure, or layout details..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Submit Request</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Your Active Queue</h3>
+                <div class="ticket-list">
+                    <div class="ticket-item">
+                        <div class="ticket-info">
+                            <h4>E-commerce Store Setup</h4>
+                            <span>Submitted: Today</span>
+                        </div>
+                        <div class="badge-progress">In Progress</div>
+                    </div>
+                    <div class="ticket-item">
+                        <div class="ticket-info">
+                            <h4>Portfolio Design Review</h4>
+                            <span>Submitted: 2 days ago</span>
+                        </div>
+                        <div class="badge-progress" style="background: rgba(16,185,129,0.1); color: #10b981;">Live</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('requestForm');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const projectType = document.getElementById('type').value;
+            const description = document.getElementById('desc').value;
+            
+            try {
+                // Connecting directly to your local node.js port
+                const response = await fetch('http://localhost:5000/api/requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, projectType, description })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('🎉 Success: Your web request has been submitted to MongoDB!');
+                    form.reset();
+                } else {
+                    alert('Error: Server accepted request but failed to save.');
+                }
+            } catch (error) {
+                console.error('Submission Error:', error);
+                alert('Could not connect to the server. Make sure "node server.js" is running on port 5000!');
+            }
+        });
+    </script>
+</body>
+</html>
 </body>
 </html>
