@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Onboarding Form | DevAgency</title>
+    <title>Client Onboarding & Tracking | DevAgency</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0b0f19; color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { width: 100%; max-width: 650px; background-color: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 40px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+        .dashboard-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; width: 100%; max-width: 1050px; }
+        .card { background-color: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 40px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
         .brand { font-size: 26px; font-weight: 700; color: #3b82f6; text-align: center; margin-bottom: 10px; }
         .brand span { color: #fff; }
         .subtitle { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 30px; }
@@ -20,59 +21,86 @@
         .btn-submit:hover { background-color: #2563eb; }
         
         /* Success Box Style */
-        .success-box { display: none; background-color: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 12px; padding: 30px; text-align: center; margin-top: 20px; }
+        .success-box { display: none; background-color: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 12px; padding: 30px; text-align: center; }
         .success-box h3 { color: #10b981; font-size: 22px; margin-bottom: 15px; }
         .id-badge { background-color: #1e293b; color: #3b82f6; font-size: 24px; font-weight: 700; padding: 10px 20px; border-radius: 8px; display: inline-block; margin-bottom: 15px; letter-spacing: 1px; border: 1px solid #3b82f6; }
         .success-box p { color: #94a3b8; font-size: 14px; line-height: 1.6; }
+
+        /* Tracker Box Style */
+        .track-card { display: flex; flex-direction: column; justify-content: center; }
+        .track-title { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 15px; text-align: center; }
+        .status-result { display: none; margin-top: 25px; padding: 20px; background-color: #0b0f19; border: 1px solid #1e293b; border-radius: 10px; text-align: center; }
+        .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="brand">Dev<span>Agency</span></div>
-        <p class="subtitle">Tell us about your project requirements to get started.</p>
+    <div class="dashboard-grid">
+        
+        <div class="card" id="formCard">
+            <div class="brand">Dev<span>Agency</span></div>
+            <p class="subtitle">Tell us about your project requirements to get started.</p>
 
-        <form id="requestForm">
-            <div class="row-inputs">
-                <div class="form-group">
-                    <label for="clientName">Your Full Name</label>
-                    <input type="text" id="clientName" placeholder="e.g., John Doe" required>
+            <form id="requestForm">
+                <div class="row-inputs">
+                    <div class="form-group">
+                        <label for="clientName">Your Full Name</label>
+                        <input type="text" id="clientName" placeholder="e.g., John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatsappNumber">WhatsApp Number</label>
+                        <input type="tel" id="whatsappNumber" placeholder="e.g., +919876543210" required>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label for="whatsappNumber">WhatsApp Number (with Country Code)</label>
-                    <input type="tel" id="whatsappNumber" placeholder="e.g., +919876543210" required>
+                    <label for="title">Project / Requirement Title</label>
+                    <input type="text" id="title" placeholder="e.g., Build a Portfolio Website" required>
                 </div>
+
+                <div class="form-group">
+                    <label for="type">Project Type</label>
+                    <select id="type">
+                        <option>Custom HTML/CSS Website</option>
+                        <option>WordPress Website</option>
+                        <option>E-commerce Feature/Update</option>
+                        <option>UI Design / Revision</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="desc">Detailed Description & Guidelines</label>
+                    <textarea id="desc" rows="5" placeholder="Describe color themes, reference links, structure..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">Submit Requirements</button>
+            </form>
+
+            <div class="success-box" id="successBox">
+                <h3>🎉 Order Placed Successfully!</h3>
+                <p style="color: #fff; margin-bottom: 10px;">Your Unique Tracking ID is:</p>
+                <div class="id-badge" id="displayId">REQ-XXXX</div>
+                <p>Please copy this ID. You can use it on the right panel anytime to track your live project status.</p>
             </div>
-
-            <div class="form-group">
-                <label for="title">Project / Requirement Title</label>
-                <input type="text" id="title" placeholder="e.g., Build a Portfolio Website for my agency" required>
-            </div>
-
-            <div class="form-group">
-                <label for="type">Project Type</label>
-                <select id="type">
-                    <option>Custom HTML/CSS Website</option>
-                    <option>WordPress Website</option>
-                    <option>E-commerce Feature/Update</option>
-                    <option>UI Design / Revision</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="desc">Detailed Description & Guidelines</label>
-                <textarea id="desc" rows="5" placeholder="Describe color themes, reference website links, page structure, etc..." required></textarea>
-            </div>
-
-            <button type="submit" class="btn-submit" id="submitBtn">Submit Requirements</button>
-        </form>
-
-        <div class="success-box" id="successBox">
-            <h3>🎉 Order Placed Successfully!</h3>
-            <p style="color: #fff; margin-bottom: 10px;">Your Unique Tracking ID is:</p>
-            <div class="id-badge" id="displayId">REQ-XXXX</div>
-            <p>Please save this ID. A confirmation message has been triggered to your WhatsApp number. You can use this ID anytime to track your project status.</p>
         </div>
+
+        <div class="card track-card">
+            <div class="track-title">🔍 Track Project Status</div>
+            <p class="subtitle" style="margin-bottom: 20px;">Enter your Unique Tracking ID to see live progress.</p>
+            
+            <div class="form-group">
+                <input type="text" id="searchTrackId" placeholder="Enter ID (e.g., REQ-1234)" style="text-align: center; font-weight: 600; text-transform: uppercase;">
+            </div>
+            <button class="btn-submit" id="trackBtn" style="background-color: #1e293b; border: 1px solid #3b82f6; color: #3b82f6;">Check Status</button>
+
+            <div class="status-result" id="statusResult">
+                <p style="color: #94a3b8; font-size: 14px;">Project Title:</p>
+                <h4 id="resTitle" style="color: #fff; margin-bottom: 15px; margin-top: 5px;">Project Name Here</h4>
+                <p style="color: #94a3b8; font-size: 14px;">Current Status:</p>
+                <div class="status-badge" id="resStatus">Pending</div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -81,10 +109,9 @@
         const displayId = document.getElementById('displayId');
         const submitBtn = document.getElementById('submitBtn');
 
+        // Form Submit Handle
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Button text change loading state dikhane ke liye
             submitBtn.innerText = "Submitting to Cloud...";
             submitBtn.disabled = true;
 
@@ -102,19 +129,17 @@
                 });
                 
                 const data = await response.json();
-                
                 if (data.success) {
-                    // Form chhupao aur Unique ID wala success card dikhao
                     form.style.display = 'none';
                     displayId.innerText = data.requestId;
                     successBox.style.display = 'block';
                 } else {
-                    alert('Error: Server failed to process submission.');
+                    alert('Error: Server failed.');
                     resetButton();
                 }
             } catch (error) {
-                console.error('Submission Error:', error);
-                alert('Connection Error: Unable to reach the live database.');
+                console.error(error);
+                alert('Connection Error.');
                 resetButton();
             }
         });
@@ -123,6 +148,52 @@
             submitBtn.innerText = "Submit Requirements";
             submitBtn.disabled = false;
         }
+
+        // Live Tracking Logic
+        const trackBtn = document.getElementById('trackBtn');
+        const searchTrackId = document.getElementById('searchTrackId');
+        const statusResult = document.getElementById('statusResult');
+        const resTitle = document.getElementById('resTitle');
+        const resStatus = document.getElementById('resStatus');
+
+        trackBtn.addEventListener('click', async () => {
+            const id = searchTrackId.value.trim();
+            if(!id) return alert('Please enter a valid Tracking ID');
+
+            trackBtn.innerText = "Searching...";
+            statusResult.style.display = 'none';
+
+            try {
+                const res = await fetch(`https://agency-os-phkc.onrender.com/api/requests/track/${id}`);
+                const data = await res.json();
+
+                if(data.success) {
+                    resTitle.innerText = data.title;
+                    resStatus.innerText = data.status;
+                    
+                    // Status ke hisaab se styling color badalna
+                    if(data.status === 'Pending') {
+                        resStatus.style.background = 'rgba(245, 158, 11, 0.1)';
+                        resStatus.style.color = '#f59e0b';
+                    } else if(data.status === 'In Progress') {
+                        resStatus.style.background = 'rgba(59, 130, 246, 0.1)';
+                        resStatus.style.color = '#3b82f6';
+                    } else { // Completed / Live
+                        resStatus.style.background = 'rgba(16, 185, 129, 0.1)';
+                        resStatus.style.color = '#10b981';
+                    }
+
+                    statusResult.style.display = 'block';
+                } else {
+                    alert(data.message || 'ID not found.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('ID not found or Database Error.');
+            } finally {
+                trackBtn.innerText = "Check Status";
+            }
+        });
     </script>
 </body>
 </html>
