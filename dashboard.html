@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Onboarding & Tracking | DevAgency</title>
+    <title>Client Onboarding & Tracking | Web Tolet</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0b0f19; color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -38,18 +38,23 @@
     <div class="dashboard-grid">
         
         <div class="card" id="formCard">
-            <div class="brand">Dev<span>Agency</span></div>
+            <div class="brand">Web<span>Tolet</span></div>
             <p class="subtitle">Tell us about your project requirements to get started.</p>
 
             <form id="requestForm">
+                <div class="form-group">
+                    <label for="clientName">Your Full Name</label>
+                    <input type="text" id="clientName" placeholder="e.g., John Doe" required>
+                </div>
+
                 <div class="row-inputs">
                     <div class="form-group">
-                        <label for="clientName">Your Full Name</label>
-                        <input type="text" id="clientName" placeholder="e.g., John Doe" required>
+                        <label for="clientEmail">Email Address (For Track-ID Delivery)</label>
+                        <input type="email" id="clientEmail" placeholder="e.g., john@example.com" required>
                     </div>
                     <div class="form-group">
                         <label for="whatsappNumber">WhatsApp Number</label>
-                        <input type="tel" id="whatsappNumber" placeholder="e.g., +919876543210" required>
+                        <input type="tel" id="whatsappNumber" placeholder="e.g., 7464010787" required>
                     </div>
                 </div>
 
@@ -70,17 +75,17 @@
 
                 <div class="form-group">
                     <label for="desc">Detailed Description & Guidelines</label>
-                    <textarea id="desc" rows="5" placeholder="Describe color themes, reference links, structure..." required></textarea>
+                    <textarea id="desc" rows="4" placeholder="Describe color themes, reference links, structure..." required></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit" id="submitBtn">Submit Requirements</button>
             </form>
 
             <div class="success-box" id="successBox">
-                <h3>🎉 Order Placed Successfully!</h3>
+                <h3>🎉 Requirements Logged!</h3>
                 <p style="color: #fff; margin-bottom: 10px;">Your Unique Tracking ID is:</p>
                 <div class="id-badge" id="displayId">REQ-XXXX</div>
-                <p>Please copy this ID. You can use it on the right panel anytime to track your live project status.</p>
+                <p>An official tracking link and setup details have been fired directly to your inbox. Kindly check your email.</p>
             </div>
         </div>
 
@@ -109,13 +114,13 @@
         const displayId = document.getElementById('displayId');
         const submitBtn = document.getElementById('submitBtn');
 
-        // Form Submit Handle
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            submitBtn.innerText = "Submitting to Cloud...";
+            submitBtn.innerText = "Connecting Web Tolet Engine...";
             submitBtn.disabled = true;
 
             const clientName = document.getElementById('clientName').value;
+            const clientEmail = document.getElementById('clientEmail').value;
             const whatsappNumber = document.getElementById('whatsappNumber').value;
             const title = document.getElementById('title').value;
             const projectType = document.getElementById('type').value;
@@ -125,42 +130,21 @@
                 const response = await fetch('https://agency-os-phkc.onrender.com/api/requests', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ clientName, whatsappNumber, title, projectType, description })
+                    body: JSON.stringify({ clientName, clientEmail, whatsappNumber, title, projectType, description })
                 });
                 
                 const data = await response.json();
-               if (data.success) {
-                    // 1. Form chhupao aur Unique ID wala card dikhao
+                if (data.success) {
                     form.style.display = 'none';
                     displayId.innerText = data.requestId;
                     successBox.style.display = 'block';
-
-                    // 2. DIRECT WHATSAPP REDIRECT LOGIC (Bina Twilio ke)
-                    // Message text ko ache se sajao
-                    const whatsappMessage = `Hello ${clientName},\n\nThank you for contacting DevAgency! 🙏\n\nYour web request has been successfully registered.\n📌 *Project:* ${title}\n🆔 *Unique Tracking ID:* ${data.requestId}\n\nYou can use this ID anytime on our website to track your project's live status.\n\nBest Regards,\nDevAgency Team`;
-                    
-                    // Number format sahi karna
-                    let cleanNumber = whatsappNumber.replace(/\D/g, ''); // Saare symbols aur spaces hatane ke liye
-                    if(!cleanNumber.startsWith('91') && cleanNumber.length === 10) {
-                        cleanNumber = `91${cleanNumber}`; // Agar sirf 10 digit ka number hai toh default India code jodo
-                    }
-
-                    // WhatsApp ka official link open karna automatic message text ke sath
-                    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encodeURIComponent(whatsappMessage)}`;
-                    
-                    // 2 second ka pause dekar redirect karo taaki client ko pehle screen par ID dikh jaye
-                    setTimeout(() => {
-                        window.open(whatsappUrl, '_blank');
-                    }, 2000);
-
-                }
-                 else {
-                    alert('Error: Server failed.');
+                } else {
+                    alert('Error: Server failed to register data.');
                     resetButton();
                 }
             } catch (error) {
                 console.error(error);
-                alert('Connection Error.');
+                alert('Connection Error or Authentication Issue.');
                 resetButton();
             }
         });
@@ -192,14 +176,13 @@
                     resTitle.innerText = data.title;
                     resStatus.innerText = data.status;
                     
-                    // Status ke hisaab se styling color badalna
                     if(data.status === 'Pending') {
                         resStatus.style.background = 'rgba(245, 158, 11, 0.1)';
                         resStatus.style.color = '#f59e0b';
                     } else if(data.status === 'In Progress') {
                         resStatus.style.background = 'rgba(59, 130, 246, 0.1)';
                         resStatus.style.color = '#3b82f6';
-                    } else { // Completed / Live
+                    } else {
                         resStatus.style.background = 'rgba(16, 185, 129, 0.1)';
                         resStatus.style.color = '#10b981';
                     }
