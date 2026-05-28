@@ -98,8 +98,8 @@ app.post('/api/requests', async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'amitgaurav6721@gmail.com', // Tera email ID
-                pass: 'xxxx xxxx xxxx xxxx' // Tera 16-digit ka Google App Password (Mai batata hu kaise milega)
+                user: 'webtolet@gmail.com', // Tera email ID
+                pass: 'vzkjytcbvmoaoubm' // Tera 16-digit ka Google App Password (Mai batata hu kaise milega)
             }
         });
 
