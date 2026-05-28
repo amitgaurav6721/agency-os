@@ -11,78 +11,34 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-// Local backup string agar .env load na ho sake
 const dbURI = process.env.MONGO_URI || "mongodb+srv://amitgaurav429_db_user:JkLVuo35TucUiPZu@cluster0.icpw85s.mongodb.net/agencyDB?retryWrites=true&w=majority";
-
 mongoose.connect(dbURI)
     .then(() => console.log("MongoDB Connected Successfully!"))
     .catch(err => console.log("Database Connection Error:", err));
+
 // Request Schema (Data Format)
 const webRequestSchema = new mongoose.Schema({
-    requestId: { type: String, unique: true, required: true }, // Auto-generated Unique ID
+    requestId: { type: String, unique: true, required: true },
     clientName: { type: String, required: true },
     whatsappNumber: { type: String, required: true },
     title: { type: String, required: true },
     projectType: { type: String, required: true },
     description: { type: String, required: true },
-    status: { type: String, default: 'Pending' } // Pending, In Progress, Completed, Live
+    status: { type: String, default: 'Pending' }
 }, { timestamps: true });
 
 const WebRequest = mongoose.model('WebRequest', webRequestSchema);
 
-// API Route: Form Data Save Karne Ke Liye (Naya Tracking ID format)
+// 1. API Route: Form Data Save Karna + Automatic Email Confirmation Bhejna
 app.post('/api/requests', async (req, res) => {
     try {
         const { clientName, whatsappNumber, title, projectType, description } = req.body;
 
-        // Ek random 4 digit ki unique ID banana
+        // Unique ID Generate karna
         const randomDigits = Math.floor(1000 + Math.random() * 9000);
         const requestId = `REQ-${randomDigits}`;
 
-        const newRequest = new WebRequest({
-            requestId,
-            clientName,
-            whatsappNumber,
-            title,
-            projectType,
-            description
-        });
-
-        await newRequest.save();
-
-        res.status(201).json({ 
-            success: true, 
-            message: "Request submitted successfully!", 
-            requestId: requestId 
-        });
-
-    } catch (error) {
-        console.error("Error saving request:", error);
-        res.status(500).json({ success: false, message: "Server Error", error });
-    }
-});
-const PORT = process.env.PORT || 5000;
-// Database se saari requests ko nikal kar frontend par bhejna
-app.get('/api/requests', async (req, res) => {
-    try {
-        const allRequests = await Request.find().sort({ createdAt: -1 }); // Nayi requests sabse upar dikhenge
-        res.status(200).json({ success: true, data: allRequests });
-    } catch (error) {
-        console.error("Error fetching requests:", error);
-        res.status(500).json({ success: false, message: "Server error while fetching data" });
-    }
-});
-// Client ki Unique ID se uska status dhoondna
-// API Route: Form Data Save Karna + Automatic Email Confirmation Bhejna
-app.post('/api/requests', async (req, res) => {
-    try {
-        const { clientName, whatsappNumber, title, projectType, description } = req.body;
-
-        // 1. Unique ID Generate karna
-        const randomDigits = Math.floor(1000 + Math.random() * 9000);
-        const requestId = `REQ-${randomDigits}`;
-
-        // 2. Database me Save karna
+        // Database me Save karna
         const newRequest = new WebRequest({
             requestId,
             clientName,
@@ -93,17 +49,16 @@ app.post('/api/requests', async (req, res) => {
         });
         await newRequest.save();
 
-        // 3. AUTOMATED GMAIL/EMAIL LOGIC
-        // Yahan tum apni Gmail details daloge (Password me normal password nahi, Google App Password dalna hoga)
+        // AUTOMATED GMAIL/EMAIL LOGIC
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'webtolet@gmail.com', // Tera email ID
-                pass: 'vzkjytcbvmoaoubm' // Tera 16-digit ka Google App Password (Mai batata hu kaise milega)
+                user: 'webtolet@gmail.com', // Tera sender email ID
+                pass: 'vzkjytcbvmoaoubm'    // Tera 16-digit ka Google App Password
             }
         });
 
-        // Client ke liye ek shaandar HTML email template
+        // Client aur Tere liye HTML template
         const emailHtml = `
             <div style="font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; padding: 30px; color: #1f2937;">
                 <div style="max-width: 600px; background-color: #fff; margin: 0 auto; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
@@ -132,17 +87,16 @@ app.post('/api/requests', async (req, res) => {
                             <td style="padding: 8px 0; color: #d97706; font-weight: 600;">Pending (Awaiting Review)</td>
                         </tr>
                     </table>
-
                     <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;">
                     <p style="font-size: 13px; color: #9ca3af; text-align: center;">You can use this Tracking ID on our client portal anytime to see live development logs.</p>
                 </div>
             </div>
         `;
 
-        // Mail Bhejna trigger karo
+        // Mail Bhejna trigger karo (To me tera hi email dala hai testing ke liye)
         await transporter.sendMail({
-            from: '"DevAgency Support" <amitgaurav6721@gmail.com>',
-            to: 'amitgaurav6721@gmail.com', // Abhi testing ke liye teri hi ID par bhej rahe hain, baad me client ki email field se sync kar denge
+            from: '"DevAgency Support" <webtolet@gmail.com>',
+            to: 'amitgaurav6721@gmail.com', 
             subject: `🎉 Project Registered Successfully! [ID: ${requestId}]`,
             html: emailHtml
         });
@@ -162,4 +116,30 @@ app.post('/api/requests', async (req, res) => {
         });
     }
 });
+
+// 2. API Route: Database se saari requests ko nikal kar frontend par bhejna
+app.get('/api/requests', async (req, res) => {
+    try {
+        const allRequests = await WebRequest.find().sort({ createdAt: -1 });
+        res.status(200).json({ success: true, data: allRequests });
+    } catch (error) {
+        console.error("Error fetching requests:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
+// 3. API Route: Client ki Unique ID se uska status dhoondna
+app.get('/api/requests/track/:id', async (req, res) => {
+    try {
+        const request = await WebRequest.findOne({ requestId: req.params.id.toUpperCase() });
+        if (!request) {
+            return res.status(404).json({ success: false, message: "ID galat hai. Sahi ID dalein." });
+        }
+        res.status(200).json({ success: true, status: request.status, title: request.title });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
